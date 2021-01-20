@@ -37,6 +37,10 @@ func NewPair(primary string, secondary string) (p Pair, err error) {
 }
 
 // Represents Pair as string with default delimiter
-func (p *Pair) String() string {
-	return fmt.Sprintf("%s%c%s", p.primary.Id(), PairDefaultDelimiter, p.secondary.Id())
+func (p *Pair) String(delimiter ...rune) string {
+	d := PairDefaultDelimiter
+	if len(delimiter) > 0 {
+		d = delimiter[0]
+	}
+	return fmt.Sprintf("%s%c%s", p.primary.Id(), d, p.secondary.Id())
 }

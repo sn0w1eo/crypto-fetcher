@@ -50,7 +50,19 @@ func TestNewPair(t *testing.T) {
 }
 
 func TestPair_String(t *testing.T) {
-	pair, _ := NewPair("BTC", "USD")
-	expected := fmt.Sprintf("%s%c%s", pair.Primary(), PairDefaultDelimiter, pair.Secondary())
-	assert.Equal(t, expected, pair.String())
+	cases := []struct {
+		primary    string
+		secondary  string
+		delimiters []rune
+		expected   string
+	}{
+		{"BTC", "USD", []rune{'/'}, "BTC/USD"},
+		{"BTC", "USD", []rune{'|', '-'}, "BTC|USD"},
+		{"BTC", "USD", nil, fmt.Sprintf("BTC%cUSD", PairDefaultDelimiter)},
+	}
+	for _, testCase := range cases {
+		pair, _ := NewPair("BTC", "USD")
+		str := pair.String(testCase.delimiters...)
+		assert.Equal(t, testCase.expected, str)
+	}
 }
