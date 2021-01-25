@@ -2,12 +2,13 @@ language: go
 go:
   - 1.15.x
 
-os: linux
+env:
+  - GO111MODULE=on
 
 notifications:
   email: false
 
-before_install:
-  - go get -t -v ./...
+install: true
+
 script:
-  - go test -v -race ./...
+  - go test -v -race -mod=vendor ./...
