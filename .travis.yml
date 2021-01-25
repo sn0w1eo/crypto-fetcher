@@ -10,5 +10,9 @@ notifications:
 
 install: true
 
+before_install:
+  - go mod tidy
+  - go mod vendor
+
 script:
   - go test -v -race -mod=vendor ./...
