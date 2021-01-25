@@ -1,6 +1,7 @@
 package coinbase
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/Sn0w1eo/crypto-fetcher/src/crypto"
 	"strconv"
@@ -50,4 +51,14 @@ func (t Tick) Pair() (pair crypto.Pair, err error) {
 		return
 	}
 	return
+}
+
+// Returns crypto.Tick out of msg. Error occurs on unmarshall or wrap failure
+func parseTick(msg []byte) (tick crypto.Tick, err error) {
+	t := Tick{}
+	err = json.Unmarshal(msg, &t)
+	if err != nil {
+		return tick, fmt.Errorf("wrong message format, unable to unmarshall: %s", string(msg))
+	}
+	return crypto.WrapTicker(t)
 }

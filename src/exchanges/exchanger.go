@@ -12,6 +12,5 @@ type Exchanger interface {
 	Stop(reason interface{})
 	SetLogger(writer io.Writer)
 	SetPairs(...crypto.Pair) error
-	SetChannels(...string) error
 	Ticker() <-chan crypto.Tick
 }

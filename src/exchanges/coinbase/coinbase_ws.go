@@ -5,6 +5,9 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+// Default URL for Coibase Websocket connection
+const CoinbaseWS_URL = "wss://ws-feed.pro.coinbase.com"
+
 // CoinbaseWS is used for WebSocket Protocol
 type CoinbaseWS struct {
 	Coinbase
@@ -14,17 +17,18 @@ type CoinbaseWS struct {
 	done chan bool
 }
 
-// Dials to predefined URL in Protocol
-// Returns error if setup isn't valid
-// Returns error is Dial to server failed
-func (cbw *CoinbaseWS) Dial() error {
-	err := cbw.isValidSetup()
-	if err != nil {
-		cbw.log(err)
-		return err
-	}
+// Creates new Coinbase Exchanger. Depends on the protocol
+// WebSocket protocol defined as const
+// error occurs if protocol has no implementation yet
+func NewWS() *CoinbaseWS {
+	c := new(CoinbaseWS)
+	return c
+}
 
-	cbw.conn, _, err = websocket.DefaultDialer.Dial(protocols[cbw.protocol], nil)
+// Dials to predefined URL in Protocol
+// Returns error is Dial to server failed
+func (cbw *CoinbaseWS) Dial() (err error) {
+	cbw.conn, _, err = websocket.DefaultDialer.Dial(CoinbaseWS_URL, nil)
 	if err != nil {
 		cbw.log(err)
 		return err
@@ -38,17 +42,18 @@ func (cbw *CoinbaseWS) Dial() error {
 // On connection closed invoke method Stop()
 // Closes dedicated chan on return
 func (cbw *CoinbaseWS) reader() {
-	defer close(cbw.tick)
 	for {
 		select {
 		case <-cbw.done:
 			_ = cbw.conn.Close()
+			close(cbw.tick)
+			cbw.tick = nil
 			return
 		default:
 			_, msg, err := cbw.conn.ReadMessage()
 			if err != nil {
 				cbw.Stop("connection closed")
-				return
+				continue
 			}
 			msgType, err := parseMessageType(msg)
 			switch msgType {
@@ -58,7 +63,7 @@ func (cbw *CoinbaseWS) reader() {
 					cbw.log(err)
 					continue
 				}
-				if cbw.tickUsage {
+				if cbw.tick != nil {
 					cbw.tick <- tick
 				}
 			}
@@ -87,22 +92,28 @@ func (cbw *CoinbaseWS) subscribe() error {
 }
 
 // Sends value to done chan. Logs reason of stop
-// Disables tickUsage flag
 func (cbw *CoinbaseWS) Stop(reason interface{}) {
 	cbw.done <- true
-	cbw.tickUsage = false
 	if reason != nil {
 		cbw.log(reason)
 	}
 }
 
 // Serve invokes subscribe method and starts reader. And waits for done chan to finish
+// Returns error if setup isn't valid
 func (cbw *CoinbaseWS) Serve() error {
-	err := cbw.subscribe()
+	err := cbw.isValidSetup()
+	if err != nil {
+		cbw.log(err)
+		return err
+	}
+
+	err = cbw.subscribe()
 	if err != nil {
 		return err
 	}
 
+	cbw.done = make(chan bool, 1)
 	go cbw.reader()
 
 	for {

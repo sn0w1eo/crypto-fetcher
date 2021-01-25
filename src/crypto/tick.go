@@ -12,18 +12,18 @@ type Tick struct {
 
 // Wraps Ticker object to crypto.Tick object
 func WrapTicker(ticker Ticker) (tick Tick, err error) {
+	tick.Time = ticker.Timestamp()
 	tick.Pair, err = ticker.Pair()
 	if err != nil {
-		return tick, nil
+		return tick, err
 	}
-	tick.Time = ticker.Timestamp()
 	tick.BestBid, err = ticker.BestBid()
 	if err != nil {
-		return tick, nil
+		return tick, err
 	}
 	tick.BestAsk, err = ticker.BestAsk()
 	if err != nil {
-		return tick, nil
+		return tick, err
 	}
-	return
+	return tick, nil
 }

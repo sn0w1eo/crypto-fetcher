@@ -36,6 +36,7 @@ func TestNewPair(t *testing.T) {
 	}{
 		{"BTC", "USD", Pair{primary: Currency{id: "BTC"}, secondary: Currency{id: "USD"}}, false},
 		{"ETH", "USD", Pair{primary: Currency{id: "ETH"}, secondary: Currency{id: "USD"}}, false},
+		{"ETH", "", Pair{}, true},
 		{"", "USD", Pair{}, true},
 	}
 	for _, testCase := range cases {
