@@ -26,8 +26,9 @@ type Coinbase struct {
 
 // Base message exchange format provided by Coinbase API
 type coinbaseMessage struct {
-	Type  string `json:"type"`
-	Error string `json:"error"`
+	Type    string `json:"type"`
+	Message string `json:"message"`
+	Reason  string `json:"reason"`
 }
 
 // Struct for subscription option according to rules of Coinbase API
@@ -57,7 +58,7 @@ func (cb *Coinbase) log(v interface{}) {
 
 // Sets logger as io.Writer interface
 func (cb *Coinbase) SetLogger(w io.Writer) {
-	cb.logger = log.New(w, "", log.Ldate|log.Ltime|log.Lshortfile)
+	cb.logger = log.New(w, "", log.Ldate|log.Ltime)
 }
 
 // Sets slice of crypto.Pair, will be used for subscribe later on
@@ -87,6 +88,9 @@ func parseMessageType(msg []byte) (string, error) {
 	err := json.Unmarshal(msg, &cbMsg)
 	if cbMsg.Type == "" {
 		return "", fmt.Errorf("message type is empty")
+	}
+	if cbMsg.Type == "error" {
+		return "", fmt.Errorf("error received: %s, reason: %s", cbMsg.Message, cbMsg.Reason)
 	}
 	return cbMsg.Type, err
 }

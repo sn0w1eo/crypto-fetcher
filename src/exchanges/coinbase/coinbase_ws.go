@@ -56,6 +56,10 @@ func (cbw *CoinbaseWS) reader() {
 				continue
 			}
 			msgType, err := parseMessageType(msg)
+			if err != nil {
+				cbw.log(err)
+				continue
+			}
 			switch msgType {
 			case tickerChannelName:
 				tick, err := parseTick(msg)
