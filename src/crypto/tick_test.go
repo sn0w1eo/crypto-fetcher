@@ -38,7 +38,7 @@ func TestWrapTicker(t *testing.T) {
 	}{
 		{
 			fakeTick: fTick{"btc", "usd", "1", "10", 1},
-			want:     Tick{Pair: Pair{primary: Currency{id: "BTC"}, secondary: Currency{id: "USD"}}, BestBid: 1.0, BestAsk: 10.0, Time: time.Unix(1, 0)},
+			want:     Tick{P: Pair{primary: Currency{id: "BTC"}, secondary: Currency{id: "USD"}}, Bid: 1.0, Ask: 10.0, T: time.Unix(1, 0)},
 			hasError: false,
 		},
 		{
@@ -72,4 +72,43 @@ func TestWrapTicker(t *testing.T) {
 		assert.Equal(t, testCase.want, tick)
 	}
 
+}
+
+func TestTick_Pair(t *testing.T) {
+	expectedPair, _ := NewPair("btc", "usd")
+	tick := Tick{
+		P: expectedPair,
+	}
+	gotPair, err := tick.Pair()
+	assert.NoError(t, err)
+	assert.Equal(t, expectedPair, gotPair)
+}
+
+func TestTick_Timestamp(t *testing.T) {
+	expectedTimestamp := time.Now()
+	tick := Tick{
+		T: expectedTimestamp,
+	}
+	gotTimestamp := tick.Timestamp()
+	assert.Equal(t, expectedTimestamp, gotTimestamp)
+}
+
+func TestTick_BestAsk(t *testing.T) {
+	expectedAsk := 123.2
+	tick := Tick{
+		Ask: expectedAsk,
+	}
+	gotAsk, err := tick.BestAsk()
+	assert.NoError(t, err)
+	assert.Equal(t, expectedAsk, gotAsk)
+}
+
+func TestTick_BestBid(t *testing.T) {
+	expectedBid := 123.2
+	tick := Tick{
+		Bid: expectedBid,
+	}
+	gotBid, err := tick.BestBid()
+	assert.NoError(t, err)
+	assert.Equal(t, expectedBid, gotBid)
 }

@@ -120,10 +120,10 @@ func Test_parseTick(t *testing.T) {
 		{
 			msg: []byte("{\"time\":\"1970-01-01T00:00:00Z\", \"best_bid\":\"2\", \"best_ask\":\"1\", \"product_id\":\"BTC-USD\"}"),
 			expectedTick: crypto.Tick{
-				Time:    time.Unix(0, 0),
-				Pair:    btc_usd,
-				BestBid: 2,
-				BestAsk: 1,
+				T:   time.Unix(0, 0),
+				P:   btc_usd,
+				Bid: 2,
+				Ask: 1,
 			},
 			hasError: false,
 		},
@@ -142,10 +142,10 @@ func Test_parseTick(t *testing.T) {
 		}
 		assert.NoError(t, err)
 
-		assert.Equal(t, time.Duration(0), testCase.expectedTick.Time.Sub(tick.Time))
-		assert.Equal(t, testCase.expectedTick.Pair, tick.Pair)
-		assert.Equal(t, testCase.expectedTick.BestBid, tick.BestBid)
-		assert.Equal(t, testCase.expectedTick.BestAsk, tick.BestAsk)
+		assert.Equal(t, time.Duration(0), testCase.expectedTick.T.Sub(tick.T))
+		assert.Equal(t, testCase.expectedTick.P, tick.P)
+		assert.Equal(t, testCase.expectedTick.Bid, tick.Bid)
+		assert.Equal(t, testCase.expectedTick.Ask, tick.Ask)
 
 	}
 }

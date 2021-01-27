@@ -57,7 +57,7 @@ func TestCoinbase_Ticker(t *testing.T) {
 		gotChan := c.Ticker()
 		assert.Equal(t, c.channels[0], tickerChannelName)
 
-		passValue := crypto.Tick{Time: time.Now()}
+		passValue := crypto.Tick{T: time.Now()}
 		c.tick <- passValue
 		assert.Equal(t, passValue, <-gotChan)
 		assert.Equal(t, 1, cap(c.tick))
